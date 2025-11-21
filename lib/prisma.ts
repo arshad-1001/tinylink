@@ -5,7 +5,9 @@ import { PrismaNeonHttp } from "@prisma/adapter-neon";
 const connectionString = process.env.DATABASE_URL!;
 const pool = new Pool({ connectionString });
 
-const adapter = new PrismaNeonHttp(pool);
+// PrismaNeonHttp requires TWO arguments:
+// (pool, { connectionString })
+const adapter = new PrismaNeonHttp(pool, { connectionString });
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
