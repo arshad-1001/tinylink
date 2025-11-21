@@ -1,37 +1,25 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { isValidShortCode } from "@/lib/validation";
 
-interface Params {
-  params: { code: string };
-}
+export async function GET(request: NextRequest, context: { params: { code: string } }) {
+  const { code } = context.params;
 
-export async function GET(_: Request, { params }: Params) {
-  const { code } = params;
-
-  // Validate the code format before querying the DB
-  if (!isValidShortCode(code)) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
-  }
-
-  // Fetch the link
   const link = await prisma.link.findUnique({
     where: { shortCode: code },
   });
 
   if (!link) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
+    return NextResponse.redirect(new URL("/", request.url));
   }
 
-  // Update stats asynchronously after redirect
-  prisma.link.update({
+  // increment click count + lastClicked
+  await prisma.link.update({
     where: { shortCode: code },
     data: {
-      clicks: link.clicks + 1,
+      clicks: { increment: 1 },
       lastClicked: new Date(),
     },
-  }).catch(() => {});
+  });
 
-  // Perform redirect
-  return NextResponse.redirect(link.originalUrl, 302);
+  return NextResponse.redirect(link.originalUrl, { status: 302 });
 }
