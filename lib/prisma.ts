@@ -1,13 +1,10 @@
 import { PrismaClient } from "./generated/prisma/client";
-import { Pool } from "@neondatabase/serverless";
 import { PrismaNeonHttp } from "@prisma/adapter-neon";
 
 const connectionString = process.env.DATABASE_URL!;
-const pool = new Pool({ connectionString });
 
-// PrismaNeonHttp requires TWO arguments:
-// (pool, { connectionString })
-const adapter = new PrismaNeonHttp(pool, { connectionString });
+// PrismaNeonHttp (new Prisma 7 signature) accepts only the connection string
+const adapter = new PrismaNeonHttp(connectionString);
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
