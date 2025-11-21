@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { isValidShortCode, isValidUrl } from "@/lib/validation";
-import { generateRandomCode } from "@/lib/generator";
+import { generateShortCode } from "@/lib/generator";
 
 export async function createLink(formData: FormData) {
   const originalUrl = formData.get("originalUrl") as string;
@@ -18,7 +18,7 @@ export async function createLink(formData: FormData) {
 
   // Auto-generate if none provided
   if (!shortCode) {
-    shortCode = generateRandomCode();
+    shortCode = generateShortCode(6); // <-- FIXED
   }
 
   try {
