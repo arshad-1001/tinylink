@@ -1,11 +1,11 @@
 import { PrismaClient } from "./generated/prisma/client";
 import { Pool } from "@neondatabase/serverless";
-import { NeonHTTPAdapter } from "@prisma/adapter-neon";
+import { PrismaNeonHttp } from "@prisma/adapter-neon";
 
 const connectionString = process.env.DATABASE_URL!;
 const pool = new Pool({ connectionString });
 
-const adapter = new NeonHTTPAdapter({ pool });
+const adapter = new PrismaNeonHttp(pool);
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
@@ -14,7 +14,7 @@ const globalForPrisma = globalThis as unknown as {
 export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({
-    adapter, // Prisma 7 required
+    adapter,
   });
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
