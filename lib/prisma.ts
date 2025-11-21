@@ -1,6 +1,8 @@
-import { PrismaClient } from "../lib/generated/prisma"; // New Prisma 7 output path
+import { PrismaClient } from "@/lib/generated/prisma";
 
-const globalForPrisma = global as unknown as { prisma: PrismaClient };
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined
+};
 
 export const prisma =
   globalForPrisma.prisma ??
@@ -8,4 +10,6 @@ export const prisma =
     log: ["query", "error", "warn"],
   });
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+if (process.env.NODE_ENV !== "production") {
+  globalForPrisma.prisma = prisma;
+}
