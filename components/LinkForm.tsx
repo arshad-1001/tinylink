@@ -24,26 +24,26 @@ export default function LinkForm({ onSubmit }: { onSubmit: (fd: FormData) => Pro
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3 p-4 border rounded bg-white">
+    <form onSubmit={handleSubmit} className="space-y-3 p-4 border rounded bg-white dark:bg-zinc-900">
       <div>
-        <label className="block text-sm font-medium">Original URL</label>
+        <label className="block text-sm font-medium text-black dark:text-white">Original URL</label>
         <input
           name="originalUrl"
           required
           type="text"
-          className="w-full border rounded px-3 py-2"
+          className="w-full border rounded px-3 py-2 text-black dark:text-white bg-white dark:bg-zinc-800 placeholder-gray-500 dark:placeholder-gray-400"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium">
+        <label className="block text-sm font-medium text-black dark:text-white">
           Short Code (optional)
         </label>
         <input
           name="shortCode"
           type="text"
           placeholder="Leave empty for auto-generate"
-          className="w-full border rounded px-3 py-2"
+          className="w-full border rounded px-3 py-2 text-black dark:text-white bg-white dark:bg-zinc-800 placeholder-gray-500 dark:placeholder-gray-400"
         />
       </div>
 
