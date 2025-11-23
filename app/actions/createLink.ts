@@ -3,12 +3,10 @@
 import { prisma } from "@/lib/prisma";
 import { validateUrl, validateShortCode } from "@/lib/validation";
 
-
 export async function createLink(formData: FormData) {
   const originalUrl = formData.get("originalUrl") as string;
-  const shortCode = (formData.get("shortCode") as string) || undefined;
+  const shortCode = formData.get("shortCode") as string | undefined;
 
-  // Validate
   if (!validateUrl(originalUrl)) {
     return { ok: false, error: "Invalid URL format" };
   }
@@ -17,13 +15,9 @@ export async function createLink(formData: FormData) {
     return { ok: false, error: "Invalid short code format" };
   }
 
-  // Create
   try {
     const link = await prisma.link.create({
-      data: {
-        originalUrl,
-        shortCode,
-      },
+      data: { originalUrl, shortCode },
     });
 
     return { ok: true, link };
@@ -31,6 +25,6 @@ export async function createLink(formData: FormData) {
     if (err.code === "P2002") {
       return { ok: false, error: "Short code already exists" };
     }
-    return { ok: false, error: "Something went wrong" };
+    return { ok: false, error: "Server error" };
   }
 }

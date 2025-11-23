@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { validateUrl, validateShortCode } from "@/lib/validation";
+import { validateShortCode, validateUrl } from "@/lib/validation";
 
 export async function POST(req: NextRequest) {
   try {
-    const { originalUrl, shortCode } = await req.json();
+    const { url, shortCode } = await req.json(); // <-- SPEC REQUIRES "url"
 
-    if (!validateUrl(originalUrl)) {
+    if (!validateUrl(url)) {
       return NextResponse.json({ error: "Invalid URL" }, { status: 400 });
     }
 
@@ -17,13 +17,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check duplicate code
+    // Check duplicate
     if (shortCode) {
-      const existing = await prisma.link.findUnique({
+      const exists = await prisma.link.findUnique({
         where: { shortCode },
       });
 
-      if (existing) {
+      if (exists) {
         return NextResponse.json(
           { error: "Short code already exists" },
           { status: 409 }
@@ -33,23 +33,12 @@ export async function POST(req: NextRequest) {
 
     const link = await prisma.link.create({
       data: {
-        originalUrl,
+        originalUrl: url,
         shortCode,
       },
     });
 
     return NextResponse.json(link, { status: 201 });
-  } catch (err) {
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
-  }
-}
-
-export async function GET() {
-  try {
-    const links = await prisma.link.findMany({
-      orderBy: { createdAt: "desc" },
-    });
-    return NextResponse.json(links);
   } catch {
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }

@@ -11,11 +11,13 @@ export default function SafeDate({ date }: { date: string }) {
       return;
     }
 
-    const d = new Date(date);
+    const utc = new Date(date);
 
-    // Deterministic client-side format (no hydration mismatch)
+    // Convert UTC → IST (UTC + 5:30)
+    const ist = new Date(utc.getTime() + 5.5 * 60 * 60 * 1000);
+
     setFormatted(
-      d.toLocaleString("en-IN", {
+      ist.toLocaleString("en-IN", {
         year: "numeric",
         month: "2-digit",
         day: "2-digit",
@@ -23,6 +25,7 @@ export default function SafeDate({ date }: { date: string }) {
         minute: "2-digit",
         second: "2-digit",
         hour12: false,
+        timeZone: "Asia/Kolkata",
       })
     );
   }, [date]);

@@ -23,19 +23,19 @@ export default function LinkForm({
 
   function showToast(msg: string) {
     setToast(msg);
-    setTimeout(() => setToast(""), 2000);
+    setTimeout(() => setToast(""), 1800);
   }
 
-  function isValidUrl(str: string) {
+  const codeRegex = /^[A-Za-z0-9]{6,8}$/;
+
+  function isValidUrl(url: string) {
     try {
-      new URL(str);
+      new URL(url);
       return true;
     } catch {
       return false;
     }
   }
-
-  const codeRegex = /^[A-Za-z0-9]{6,8}$/;
 
   async function handleSubmit(e: any) {
     e.preventDefault();
@@ -46,7 +46,7 @@ export default function LinkForm({
     const code = fd.get("shortCode") as string;
 
     if (!isValidUrl(url)) {
-      setError("Invalid URL format");
+      setError("Invalid URL format.");
       return;
     }
 
@@ -75,45 +75,34 @@ export default function LinkForm({
 
       <form
         onSubmit={handleSubmit}
-        className="space-y-4 p-6 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-900 shadow-sm"
+        className="space-y-4 p-6 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-900 shadow"
       >
         <div>
-          <label className="block text-sm font-medium text-black dark:text-white mb-1">
-            Original URL
-          </label>
+          <label className="block text-sm font-medium">Original URL</label>
           <input
             name="originalUrl"
             required
             type="text"
             placeholder="https://example.com"
-            className="w-full border border-zinc-300 dark:border-zinc-700 rounded px-3 py-2
-              text-black dark:text-white bg-white dark:bg-zinc-800
-              placeholder-gray-500 dark:placeholder-gray-400
-              focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full border p-2 rounded bg-white dark:bg-zinc-800"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-black dark:text-white mb-1">
-            Short Code (optional)
-          </label>
+          <label className="block text-sm font-medium">Short Code (optional)</label>
           <input
             name="shortCode"
             type="text"
             placeholder="Leave empty for auto-generate"
-            className="w-full border border-zinc-300 dark:border-zinc-700 rounded px-3 py-2
-              text-black dark:text-white bg-white dark:bg-zinc-800
-              placeholder-gray-500 dark:placeholder-gray-400
-              focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full border p-2 rounded bg-white dark:bg-zinc-800"
           />
         </div>
 
-        {error && <div className="text-red-500 text-sm">{error}</div>}
+        {error && <p className="text-red-500 text-sm">{error}</p>}
 
         <button
-          type="submit"
           disabled={loading}
-          className="bg-black dark:bg-white text-white dark:text-black font-medium px-4 py-2 rounded hover:opacity-80 transition disabled:opacity-50"
+          className="bg-black text-white px-4 py-2 rounded disabled:opacity-50"
         >
           {loading ? "Creating..." : "Create Link"}
         </button>

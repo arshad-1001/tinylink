@@ -25,26 +25,21 @@ export default function LinksTable({
     setTimeout(() => setToast(""), 1800);
   }
 
-  async function handleDelete(formData: FormData) {
-    try {
-      await onDelete(formData);
-      showToast("Link deleted");
-      router.refresh();
-    } catch (err) {
-      console.error(err);
-      showToast("Delete failed");
-    }
+  async function handleDelete(fd: FormData) {
+    await onDelete(fd);
+    showToast("Link deleted");
+    router.refresh();
   }
 
   if (!links || links.length === 0) {
-    return <p className="text-gray-500 mt-4 dark:text-gray-400">No links yet.</p>;
+    return <p className="text-gray-500 mt-4">No links yet.</p>;
   }
 
   return (
     <>
       {toast && <Toast message={toast} />}
 
-      <table className="w-full mt-6 border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden">
+      <table className="w-full mt-6 border border-gray-300 rounded-lg">
         <thead>
           <tr className="bg-gray-100 dark:bg-zinc-800">
             <th className="p-2 text-left">Code</th>
@@ -57,34 +52,24 @@ export default function LinksTable({
 
         <tbody>
           {links.map((l: any) => (
-            <tr
-              key={l.shortCode}
-              className="border-t border-gray-300 dark:border-gray-700 bg-white dark:bg-zinc-900"
-            >
-              <td className="p-2 font-mono text-black dark:text-white">
-                {l.shortCode}
-              </td>
+            <tr key={l.shortCode} className="border-t bg-white dark:bg-zinc-900">
+              <td className="p-2 font-mono">{l.shortCode}</td>
 
               <td className="p-2 max-w-sm truncate">
-                <a
-                  href={l.originalUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-blue-700 dark:text-blue-400 underline"
-                >
+                <a href={l.originalUrl} target="_blank" className="text-blue-600 underline">
                   {l.originalUrl}
                 </a>
               </td>
 
-              <td className="p-2 text-black dark:text-white">{l.clicks}</td>
+              <td className="p-2">{l.clicks}</td>
 
-              <td className="p-2 text-sm text-black dark:text-white">
+              <td className="p-2">
                 {l.lastClicked ? <SafeDate date={l.lastClicked} /> : "—"}
               </td>
 
               <td className="p-2 flex gap-2">
                 <CopyButton
-                  text={`${process.env.NEXT_PUBLIC_BASE_URL?.replace(/\/$/, "")}/${l.shortCode}`}
+                  text={`${process.env.NEXT_PUBLIC_BASE_URL}/${l.shortCode}`}
                   onCopy={() => showToast("Copied!")}
                 />
 
@@ -96,10 +81,7 @@ export default function LinksTable({
                   }}
                 >
                   <input type="hidden" name="code" value={l.shortCode} />
-                  <button
-                    type="submit"
-                    className="px-2 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600"
-                  >
+                  <button className="px-2 py-1 bg-red-500 text-white rounded text-sm">
                     Delete
                   </button>
                 </form>

@@ -1,20 +1,18 @@
-import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 
-export async function GET(
-  req: Request,
-  context: { params: { code: string } }
-) {
-  const { code } = context.params;
+export async function GET(req, { params }: any) {
+  const code = params.code;
 
   const link = await prisma.link.findUnique({
     where: { shortCode: code },
   });
 
   if (!link) {
-    return new NextResponse("Not found", { status: 404 });
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
+  // update stats
   await prisma.link.update({
     where: { shortCode: code },
     data: {
@@ -23,5 +21,5 @@ export async function GET(
     },
   });
 
-  return NextResponse.redirect(link.originalUrl, 302);
+  return NextResponse.redirect(link.originalUrl, { status: 302 });
 }

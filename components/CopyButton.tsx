@@ -9,28 +9,29 @@ export default function CopyButton({
 }) {
   async function handleCopy() {
     try {
-      // Modern API (works in Chrome, Edge, Android)
-      await navigator.clipboard.writeText(text);
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        // Mobile fallback
+        const temp = document.createElement("textarea");
+        temp.value = text;
+        document.body.appendChild(temp);
+        temp.select();
+        document.execCommand("copy");
+        document.body.removeChild(temp);
+      }
+
       onCopy?.();
-    } catch {
-      // iOS Safari fallback
-      const textarea = document.createElement("textarea");
-      textarea.value = text;
-      textarea.style.position = "fixed";
-      textarea.style.opacity = "0";
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand("copy");
-      textarea.remove();
-      onCopy?.();
+    } catch (err) {
+      console.error("Copy failed:", err);
     }
   }
 
   return (
     <button
-      type="button"
       onClick={handleCopy}
-      className="px-2 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 active:scale-95"
+      type="button"
+      className="px-2 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
     >
       Copy
     </button>

@@ -3,20 +3,14 @@ export const revalidate = 0;
 
 import LinkForm from "@/components/LinkForm";
 import LinksTable from "@/components/LinksTable";
+import { prisma } from "@/lib/prisma";
 import { createLink } from "./actions/createLink";
 import { deleteLink } from "./actions/deleteLink";
-import { prisma } from "@/lib/prisma";
 
 export default async function DashboardPage() {
   const links = await prisma.link.findMany({
     orderBy: { createdAt: "desc" },
   });
-
-  async function handleDelete(formData: FormData) {
-    "use server";
-    const code = formData.get("code") as string;
-    await deleteLink(code);
-  }
 
   return (
     <main className="max-w-3xl mx-auto py-10 space-y-8">
@@ -24,7 +18,7 @@ export default async function DashboardPage() {
 
       <LinkForm onSubmit={createLink} />
 
-      <LinksTable links={links} onDelete={handleDelete} />
+      <LinksTable links={links} onDelete={deleteLink} />
     </main>
   );
 }
