@@ -1,13 +1,13 @@
 "use client";
 
 import CopyButton from "./CopyButton";
+import SafeDate from "./SafeDate";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-// Toast UI
 function Toast({ message }: { message: string }) {
   return (
-    <div className="fixed top-4 right-4 bg-black text-white px-4 py-2 rounded shadow-lg z-50 animate-fade">
+    <div className="fixed top-4 right-4 bg-black text-white px-4 py-2 rounded shadow-lg z-50">
       {message}
     </div>
   );
@@ -15,26 +15,31 @@ function Toast({ message }: { message: string }) {
 
 export default function LinksTable({
   links,
-  onDelete,
-}: {
-  links: any[];
-  onDelete: (fd: FormData) => Promise<any>;
-}) {
+  onDelete, // server action passed from the Dashboard page
+}: any) {
   const router = useRouter();
   const [toast, setToast] = useState("");
 
   function showToast(msg: string) {
     setToast(msg);
-    setTimeout(() => setToast(""), 2000);
+    setTimeout(() => setToast(""), 1800);
   }
 
+  // Client-side wrapper for delete: calls the server action and refreshes the page
   async function handleDelete(formData: FormData) {
-    await onDelete(formData);
-    showToast("Link deleted");
-    router.refresh();
+    try {
+      // onDelete is expected to be a server action (app router action).
+      // We call it from the client — it will run on the server.
+      await onDelete(formData);
+      showToast("Link deleted");
+      router.refresh();
+    } catch (err) {
+      console.error("Delete failed", err);
+      showToast("Delete failed");
+    }
   }
 
-  if (links.length === 0) {
+  if (!links || links.length === 0) {
     return <p className="text-gray-500 mt-4 dark:text-gray-400">No links yet.</p>;
   }
 
@@ -44,27 +49,30 @@ export default function LinksTable({
 
       <table className="w-full mt-6 border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden">
         <thead>
-          <tr className="bg-gray-100 dark:bg-zinc-800 text-black dark:text-white">
-            <th className="p-2 text-left">Code</th>
-            <th className="p-2 text-left">URL</th>
-            <th className="p-2 text-left">Clicks</th>
-            <th className="p-2 text-left">Last Clicked</th>
+          <tr className="bg-gray-100 dark:bg-zinc-800">
+            <th className="p-2 text-left text-black dark:text-white">Code</th>
+            <th className="p-2 text-left text-black dark:text-white">URL</th>
+            <th className="p-2 text-left text-black dark:text-white">Clicks</th>
+            <th className="p-2 text-left text-black dark:text-white">Last Clicked</th>
             <th className="p-2"></th>
           </tr>
         </thead>
 
         <tbody>
-          {links.map((l) => (
+          {links.map((l: any) => (
             <tr
               key={l.shortCode}
               className="border-t border-gray-300 dark:border-gray-700 bg-white dark:bg-zinc-900"
             >
-              <td className="p-2 font-mono text-black dark:text-white">{l.shortCode}</td>
+              <td className="p-2 font-mono text-black dark:text-white">
+                {l.shortCode}
+              </td>
 
               <td className="p-2 max-w-sm truncate">
                 <a
                   href={l.originalUrl}
                   target="_blank"
+                  rel="noreferrer"
                   className="text-blue-700 dark:text-blue-400 underline"
                 >
                   {l.originalUrl}
@@ -74,20 +82,23 @@ export default function LinksTable({
               <td className="p-2 text-black dark:text-white">{l.clicks}</td>
 
               <td className="p-2 text-sm text-black dark:text-white">
-                {l.lastClicked
-                  ? new Date(l.lastClicked).toLocaleString("en-IN", {
-                      timeZone: "Asia/Kolkata",
-                    })
-                  : "—"}
+                {l.lastClicked ? <SafeDate date={l.lastClicked} /> : "—"}
               </td>
 
               <td className="p-2 flex gap-2">
                 <CopyButton
-                  text={`${process.env.NEXT_PUBLIC_BASE_URL}/${l.shortCode}`}
+                  text={`${process.env.NEXT_PUBLIC_BASE_URL?.replace(/\/$/, "")}/${l.shortCode}`}
                   onCopy={() => showToast("Copied!")}
                 />
 
-                <form action={handleDelete}>
+                {/* client-side form submit wrapper to call handleDelete */}
+                <form
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    const fd = new FormData(e.currentTarget as HTMLFormElement);
+                    await handleDelete(fd);
+                  }}
+                >
                   <input type="hidden" name="code" value={l.shortCode} />
                   <button
                     type="submit"
