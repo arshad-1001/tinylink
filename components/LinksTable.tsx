@@ -4,9 +4,10 @@ import CopyButton from "./CopyButton";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+// Toast UI
 function Toast({ message }: { message: string }) {
   return (
-    <div className="fixed top-4 right-4 bg-black text-white px-4 py-2 rounded shadow-lg z-50">
+    <div className="fixed top-4 right-4 bg-black text-white px-4 py-2 rounded shadow-lg z-50 animate-fade">
       {message}
     </div>
   );
@@ -14,20 +15,23 @@ function Toast({ message }: { message: string }) {
 
 export default function LinksTable({
   links,
-  onDelete, // <-- This is the server action passed from Dashboard page
-}: any) {
+  onDelete,
+}: {
+  links: any[];
+  onDelete: (fd: FormData) => Promise<any>;
+}) {
   const router = useRouter();
   const [toast, setToast] = useState("");
 
   function showToast(msg: string) {
     setToast(msg);
-    setTimeout(() => setToast(""), 1800);
+    setTimeout(() => setToast(""), 2000);
   }
 
   async function handleDelete(formData: FormData) {
-    const res = await onDelete(formData); // <-- CALL SERVER ACTION
+    await onDelete(formData);
     showToast("Link deleted");
-    router.refresh(); // <-- refresh table
+    router.refresh();
   }
 
   if (links.length === 0) {
@@ -40,24 +44,22 @@ export default function LinksTable({
 
       <table className="w-full mt-6 border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden">
         <thead>
-          <tr className="bg-gray-100 dark:bg-zinc-800">
-            <th className="p-2 text-left text-black dark:text-white">Code</th>
-            <th className="p-2 text-left text-black dark:text-white">URL</th>
-            <th className="p-2 text-left text-black dark:text-white">Clicks</th>
-            <th className="p-2 text-left text-black dark:text-white">Last Clicked</th>
+          <tr className="bg-gray-100 dark:bg-zinc-800 text-black dark:text-white">
+            <th className="p-2 text-left">Code</th>
+            <th className="p-2 text-left">URL</th>
+            <th className="p-2 text-left">Clicks</th>
+            <th className="p-2 text-left">Last Clicked</th>
             <th className="p-2"></th>
           </tr>
         </thead>
 
         <tbody>
-          {links.map((l: any) => (
+          {links.map((l) => (
             <tr
               key={l.shortCode}
               className="border-t border-gray-300 dark:border-gray-700 bg-white dark:bg-zinc-900"
             >
-              <td className="p-2 font-mono text-black dark:text-white">
-                {l.shortCode}
-              </td>
+              <td className="p-2 font-mono text-black dark:text-white">{l.shortCode}</td>
 
               <td className="p-2 max-w-sm truncate">
                 <a
@@ -72,20 +74,12 @@ export default function LinksTable({
               <td className="p-2 text-black dark:text-white">{l.clicks}</td>
 
               <td className="p-2 text-sm text-black dark:text-white">
-                {l.lastClicked ? new Date(l.lastClicked).toLocaleString() : "—"}
-              </td>
-
-              <td className="p-2 text-sm text-black dark:text-white">
                 {l.lastClicked
-                  ? new Intl.DateTimeFormat("en-IN", {
-                  dateStyle: "medium",
-                  timeStyle: "short",
-                  hour12: false,
-                  timeZone: "Asia/Kolkata",
-                  }).format(new Date(l.lastClicked))
-                : "—"}
+                  ? new Date(l.lastClicked).toLocaleString("en-IN", {
+                      timeZone: "Asia/Kolkata",
+                    })
+                  : "—"}
               </td>
-
 
               <td className="p-2 flex gap-2">
                 <CopyButton
