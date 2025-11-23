@@ -1,16 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { isValidShortCode } from "@/lib/validation";
 
 export async function GET(
-  request: NextRequest,
-  context: { params: Promise<{ code: string }> }
+  req: NextRequest,
+  context: { params: { code: string } }
 ) {
-  const { code } = await context.params; // 🔥 EXACT FIX
-
-  if (!isValidShortCode(code)) {
-    return NextResponse.json({ error: "Invalid code format" }, { status: 400 });
-  }
+  const { code } = context.params;
 
   const link = await prisma.link.findUnique({
     where: { shortCode: code },
@@ -24,19 +19,22 @@ export async function GET(
 }
 
 export async function DELETE(
-  request: NextRequest,
-  context: { params: Promise<{ code: string }> }
+  req: NextRequest,
+  context: { params: { code: string } }
 ) {
-  const { code } = await context.params; // 🔥 SAME FIX
+  const { code } = context.params;
 
-  if (!isValidShortCode(code)) {
-    return NextResponse.json({ error: "Invalid code" }, { status: 400 });
-  }
+  const existing = await prisma.link.findUnique({
+    where: { shortCode: code },
+  });
 
-  try {
-    await prisma.link.delete({ where: { shortCode: code } });
-    return NextResponse.json({ success: true });
-  } catch {
+  if (!existing) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
+
+  await prisma.link.delete({
+    where: { shortCode: code },
+  });
+
+  return NextResponse.json({ ok: true });
 }

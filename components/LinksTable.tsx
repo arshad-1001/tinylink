@@ -15,7 +15,7 @@ function Toast({ message }: { message: string }) {
 
 export default function LinksTable({
   links,
-  onDelete, // server action passed from the Dashboard page
+  onDelete,
 }: any) {
   const router = useRouter();
   const [toast, setToast] = useState("");
@@ -25,16 +25,13 @@ export default function LinksTable({
     setTimeout(() => setToast(""), 1800);
   }
 
-  // Client-side wrapper for delete: calls the server action and refreshes the page
   async function handleDelete(formData: FormData) {
     try {
-      // onDelete is expected to be a server action (app router action).
-      // We call it from the client — it will run on the server.
       await onDelete(formData);
       showToast("Link deleted");
       router.refresh();
     } catch (err) {
-      console.error("Delete failed", err);
+      console.error(err);
       showToast("Delete failed");
     }
   }
@@ -50,10 +47,10 @@ export default function LinksTable({
       <table className="w-full mt-6 border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden">
         <thead>
           <tr className="bg-gray-100 dark:bg-zinc-800">
-            <th className="p-2 text-left text-black dark:text-white">Code</th>
-            <th className="p-2 text-left text-black dark:text-white">URL</th>
-            <th className="p-2 text-left text-black dark:text-white">Clicks</th>
-            <th className="p-2 text-left text-black dark:text-white">Last Clicked</th>
+            <th className="p-2 text-left">Code</th>
+            <th className="p-2 text-left">URL</th>
+            <th className="p-2 text-left">Clicks</th>
+            <th className="p-2 text-left">Last Clicked</th>
             <th className="p-2"></th>
           </tr>
         </thead>
@@ -91,11 +88,10 @@ export default function LinksTable({
                   onCopy={() => showToast("Copied!")}
                 />
 
-                {/* client-side form submit wrapper to call handleDelete */}
                 <form
                   onSubmit={async (e) => {
                     e.preventDefault();
-                    const fd = new FormData(e.currentTarget as HTMLFormElement);
+                    const fd = new FormData(e.currentTarget);
                     await handleDelete(fd);
                   }}
                 >

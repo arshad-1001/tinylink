@@ -12,7 +12,8 @@ export default function SafeDate({ date }: { date: string }) {
     }
 
     const d = new Date(date);
-    // Use a deterministic locale/format on the client
+
+    // Deterministic client-side format (no hydration mismatch)
     setFormatted(
       d.toLocaleString("en-IN", {
         year: "numeric",

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { validateShortCode, validateUrl } from "@/lib/validation";
+import { validateUrl, validateShortCode } from "@/lib/validation";
 
 export async function POST(req: NextRequest) {
   try {
@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check duplicate
+    // Check duplicate code
     if (shortCode) {
       const existing = await prisma.link.findUnique({
         where: { shortCode },
@@ -49,7 +49,6 @@ export async function GET() {
     const links = await prisma.link.findMany({
       orderBy: { createdAt: "desc" },
     });
-
     return NextResponse.json(links);
   } catch {
     return NextResponse.json({ error: "Server error" }, { status: 500 });

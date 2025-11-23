@@ -8,9 +8,6 @@ import { deleteLink } from "./actions/deleteLink";
 import { prisma } from "@/lib/prisma";
 
 export default async function DashboardPage() {
-  // FORCE re-fetch on every request
-  await fetch("https://vercel.com", { cache: "no-store" });
-
   const links = await prisma.link.findMany({
     orderBy: { createdAt: "desc" },
   });
