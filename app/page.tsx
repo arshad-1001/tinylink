@@ -1,6 +1,5 @@
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
-export const fetchCache = "force-no-store";   // 🔥 Required to disable all caching
 
 import LinkForm from "@/components/LinkForm";
 import LinksTable from "@/components/LinksTable";
@@ -9,6 +8,9 @@ import { deleteLink } from "./actions/deleteLink";
 import { prisma } from "@/lib/prisma";
 
 export default async function DashboardPage() {
+  // FORCE re-fetch on every request
+  await fetch("https://vercel.com", { cache: "no-store" });
+
   const links = await prisma.link.findMany({
     orderBy: { createdAt: "desc" },
   });

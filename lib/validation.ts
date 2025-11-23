@@ -1,13 +1,15 @@
-export function isValidShortCode(code: string): boolean {
-    return /^[A-Za-z0-9]{6,8}$/.test(code);
+// URL validation
+export function validateUrl(url: string): boolean {
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
   }
-  
-  export function isValidUrl(url: string): boolean {
-    try {
-      const parsed = new URL(url);
-      return parsed.protocol === "http:" || parsed.protocol === "https:";
-    } catch {
-      return false;
-    }
-  }
-  
+}
+
+// Shortcode validation: 6-8 alphanumeric
+export function validateShortCode(code: string): boolean {
+  const regex = /^[A-Za-z0-9]{6,8}$/;
+  return regex.test(code);
+}
