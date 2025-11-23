@@ -6,7 +6,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    // Accept BOTH formats:
+    // Accept BOTH formats (spec & dashboard)
     const url = body.url || body.originalUrl;
     const shortCode = body.shortCode;
 
@@ -25,11 +25,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Duplicate validation (spec requires 409)
+    // Duplicate error must be 409 per spec
     if (shortCode) {
       const exists = await prisma.link.findUnique({
         where: { shortCode },
       });
+
       if (exists) {
         return NextResponse.json(
           { error: "Short code already exists" },
@@ -57,7 +58,8 @@ export async function GET() {
     const links = await prisma.link.findMany({
       orderBy: { createdAt: "desc" },
     });
-    return NextResponse.json(links);
+
+    return NextResponse.json(links, { status: 200 });
   } catch {
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }

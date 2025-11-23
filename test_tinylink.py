@@ -132,4 +132,6 @@ def run_suite():
         print(f"\n{RED}CRITICAL ERROR: Could not connect to {BASE_URL}. Is the server running?{RESET}")
 
 if __name__ == "__main__":
-    run_suite()
+    run_suite()When ready, say:
+    
+    
