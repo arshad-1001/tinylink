@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-// Simple toast system (no external libs)
+// Simple toast UI
 function Toast({ message }: { message: string }) {
   return (
-    <div className="fixed top-4 right-4 bg-black text-white px-4 py-2 rounded shadow-lg z-50 animate-pulse">
+    <div className="fixed top-4 right-4 bg-black text-white px-4 py-2 rounded shadow-lg z-50">
       {message}
     </div>
   );
@@ -24,21 +24,21 @@ export default function LinkForm({
 
   function showToast(msg: string) {
     setToast(msg);
-    setTimeout(() => setToast(""), 2200);
+    setTimeout(() => setToast(""), 2000);
   }
 
-  // URL validation
+  // Frontend URL validation
   function isValidUrl(str: string) {
     try {
       new URL(str);
       return true;
-    } catch (e) {
+    } catch {
       return false;
     }
   }
 
-  // shortCode regex
-  const codeRegex = /^[A-Za-z0-9]{6,8}$/;
+  // ShortCode regex
+  const shortCodeRegex = /^[A-Za-z0-9]{6,8}$/;
 
   async function handleSubmit(e: any) {
     e.preventDefault();
@@ -48,15 +48,15 @@ export default function LinkForm({
     const originalUrl = formData.get("originalUrl") as string;
     const shortCode = formData.get("shortCode") as string;
 
-    // URL validation
+    // Validate URL
     if (!isValidUrl(originalUrl)) {
-      setError("Invalid URL. Please enter a valid link.");
+      setError("Invalid URL format");
       return;
     }
 
-    // shortCode validation
-    if (shortCode && !codeRegex.test(shortCode)) {
-      setError("Short code must be 6–8 letters or digits.");
+    // Validate short code
+    if (shortCode && !shortCodeRegex.test(shortCode)) {
+      setError("Short code must be 6–8 letters or numbers.");
       return;
     }
 
@@ -92,7 +92,11 @@ export default function LinkForm({
             required
             type="text"
             placeholder="https://example.com"
-            className="w-full border border-zinc-300 dark:border-zinc-700 rounded px-3 py-2 text-black dark:text-white bg-white dark:bg-zinc-800 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            className="w-full border border-zinc-300 dark:border-zinc-700 rounded px-3 py-2
+              text-black dark:text-white
+              bg-white dark:bg-zinc-800
+              placeholder-gray-500 dark:placeholder-gray-400
+              focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
@@ -105,18 +109,24 @@ export default function LinkForm({
             name="shortCode"
             type="text"
             placeholder="Leave empty for auto-generate"
-            className="w-full border border-zinc-300 dark:border-zinc-700 rounded px-3 py-2 text-black dark:text-white bg-white dark:bg-zinc-800 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            className="w-full border border-zinc-300 dark:border-zinc-700 rounded px-3 py-2
+              text-black dark:text-white
+              bg-white dark:bg-zinc-800
+              placeholder-gray-500 dark:placeholder-gray-400
+              focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
         {/* Error */}
         {error && <div className="text-red-500 text-sm">{error}</div>}
 
-        {/* Button */}
+        {/* Submit Button */}
         <button
           type="submit"
           disabled={loading}
-          className="bg-black dark:bg-white text-white dark:text-black font-medium px-4 py-2 rounded hover:opacity-80 transition disabled:opacity-50"
+          className="bg-black dark:bg-white text-white dark:text-black
+            font-medium px-4 py-2 rounded
+            hover:opacity-80 transition disabled:opacity-50"
         >
           {loading ? "Creating..." : "Create Link"}
         </button>
